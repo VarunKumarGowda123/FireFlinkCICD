@@ -13,11 +13,26 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up JDK 25
       uses: actions/setup-java@v4
       with:
         java-version: '25'
         distribution: 'temurin'
         # cache: maven
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Python dependencies
+      run: pip install requests python-dotenv
+
+    - name: Run machine selection script
+      run: |
+        chmod +x script.sh
+        ./script.sh
+
     - name: FireFlink suite execution
       run: java -jar fireflink-action-1.0.0.jar ${{vars.FIREFLINK_URL}} ${{vars.FIREFLINK_SUITE_ID}} ${{vars.FIREFLINK_TOKEN}} ${{vars.USERNAME}} ${{vars.FIREFLINK_PROJECT_TYPE}}
