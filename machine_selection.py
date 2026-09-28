@@ -29,7 +29,9 @@ def _require_env(name):
 
 # Usable machine allow-list (JSON array of client IDs)
 _usable_machines_raw = os.getenv("usable_machines", "[]")
-
+  print(
+        f"Suite API Status Code:  " + _usable_machines_raw
+    )
 try:
 
     USABLE_MACHINES = json.loads(_usable_machines_raw)
