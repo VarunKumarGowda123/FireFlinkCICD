@@ -389,6 +389,15 @@ def fetch_active_machines(
         .get("clientSystems", [])
     )
 
+    print("\nMachines returned by machine status API:")
+
+    for machine in machines:
+
+        print(
+            f"  - clientId={machine.get('clientId')} "
+            f"status={machine.get('status')}"
+        )
+
     available_machines = []
 
     available_client_ids = []
