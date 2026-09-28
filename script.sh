@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export usable_machines='["FFE-Srinivas-M"]'
+export usable_machines='["VarunKumar"]'
 export interval_seconds=3
 export timeout_seconds=15
 export CURL_FILE=./curl.txt
