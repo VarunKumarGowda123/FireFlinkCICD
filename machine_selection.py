@@ -27,25 +27,6 @@ def _require_env(name):
     return value
 
 
-# Usable machine allow-list (JSON array of client IDs)
-_usable_machines_raw = os.getenv("usable_machines", "[]")
-try:
-
-    USABLE_MACHINES = json.loads(_usable_machines_raw)
-
-except json.JSONDecodeError:
-
-    raise SystemExit(
-        "Invalid usable_machines value. "
-        "Expected a JSON array of machine client IDs."
-    )
-
-if not isinstance(USABLE_MACHINES, list):
-
-    raise SystemExit(
-        "usable_machines must be a JSON array."
-    )
-
 # Time settings
 INTERVAL_SECONDS = int(_require_env("interval_seconds"))
 RESULT_POLL_INTERVAL_SECONDS = INTERVAL_SECONDS
@@ -439,49 +420,6 @@ def fetch_active_machines(
         available_machines,
         available_client_ids
     )
-
-
-# ============================================================
-# FILTER USABLE MACHINES
-# ============================================================
-
-def filter_usable_machines(
-    selected_ids,
-    machine_instances
-):
-
-    if not USABLE_MACHINES:
-
-        return selected_ids, machine_instances
-
-    allowed_ids = set(USABLE_MACHINES)
-
-    filtered_ids = [
-        machine_id
-        for machine_id in selected_ids
-        if machine_id in allowed_ids
-    ]
-
-    filtered_instances = [
-        machine
-        for machine in machine_instances
-        if machine["clientId"] in allowed_ids
-    ]
-
-    if not filtered_ids:
-
-        raise SystemExit(
-            "No suite machines match usable_machines "
-            "from environment configuration."
-        )
-
-    print("\nUsable machines filter applied:")
-
-    for machine_id in filtered_ids:
-
-        print(f"  - {machine_id}")
-
-    return filtered_ids, filtered_instances
 
 
 # ============================================================
@@ -1534,14 +1472,6 @@ def main():
 
         project_id=
             parsed_data["projectId"]
-    )
-
-    (
-        selected_ids,
-        machine_instances
-    ) = filter_usable_machines(
-        selected_ids,
-        machine_instances
     )
 
     # --------------------------------------------------------
