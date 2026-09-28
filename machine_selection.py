@@ -296,27 +296,19 @@ def fetch_selected_machines(
 
     if usable_machines is not None:
 
-        configured_machine_ids = {
-            machine["clientId"]
+        configured_machines = {
+            machine["clientId"]: machine
             for machine in machines
         }
-        unknown_machines = [
-            machine_id
-            for machine_id in usable_machines
-            if machine_id not in configured_machine_ids
-        ]
-
-        if unknown_machines:
-
-            raise SystemExit(
-                "usable_machines contains machine(s) not configured "
-                f"in the suite: {', '.join(unknown_machines)}"
-            )
-
         machines = [
-            machine
-            for machine in machines
-            if machine["clientId"] in usable_machines
+            configured_machines.get(
+                machine_id,
+                {
+                    "clientId": machine_id,
+                    "machineInstances": []
+                }
+            )
+            for machine_id in usable_machines
         ]
 
     selected_ids = []
