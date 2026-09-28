@@ -7,4 +7,4 @@ export CURL_FILE=./curl.txt
 # Use a SINGLE QUOTE to hold entire curl
 # Use DOUBLE QUOTES *inside* safely
 
-python3 machine_selection.py
+python machine_selection.py
