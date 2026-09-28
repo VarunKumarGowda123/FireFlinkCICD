@@ -27,6 +27,36 @@ def _require_env(name):
     return value
 
 
+def _get_usable_machines():
+
+    value = os.getenv("usable_machines")
+
+    if not value:
+
+        return None
+
+    try:
+
+        machines = json.loads(value)
+
+    except json.JSONDecodeError as exc:
+
+        raise SystemExit(
+            f"Invalid usable_machines JSON: {exc}"
+        )
+
+    if not isinstance(machines, list) or not all(
+        isinstance(machine, str) and machine
+        for machine in machines
+    ):
+
+        raise SystemExit(
+            "usable_machines must be a JSON array of non-empty strings."
+        )
+
+    return machines
+
+
 # Time settings
 INTERVAL_SECONDS = int(_require_env("interval_seconds"))
 RESULT_POLL_INTERVAL_SECONDS = INTERVAL_SECONDS
@@ -160,7 +190,8 @@ header_template = parsed_data["headerTemplate"]
 def fetch_selected_machines(
     suite_id,
     access_token,
-    project_id
+    project_id,
+    usable_machines=None
 ):
 
     url = (
@@ -262,6 +293,31 @@ def fetch_selected_machines(
         raise SystemExit(
             "selectedMachines not found in suite response."
         )
+
+    if usable_machines is not None:
+
+        configured_machine_ids = {
+            machine["clientId"]
+            for machine in machines
+        }
+        unknown_machines = [
+            machine_id
+            for machine_id in usable_machines
+            if machine_id not in configured_machine_ids
+        ]
+
+        if unknown_machines:
+
+            raise SystemExit(
+                "usable_machines contains machine(s) not configured "
+                f"in the suite: {', '.join(unknown_machines)}"
+            )
+
+        machines = [
+            machine
+            for machine in machines
+            if machine["clientId"] in usable_machines
+        ]
 
     selected_ids = []
 
@@ -1460,6 +1516,8 @@ def main():
     # Get configured machines from suite
     # --------------------------------------------------------
 
+    usable_machines = _get_usable_machines()
+
     (
         selected_ids,
         machine_instances
@@ -1471,7 +1529,9 @@ def main():
             parsed_data["accessToken"],
 
         project_id=
-            parsed_data["projectId"]
+            parsed_data["projectId"],
+
+        usable_machines=usable_machines
     )
 
     # --------------------------------------------------------
