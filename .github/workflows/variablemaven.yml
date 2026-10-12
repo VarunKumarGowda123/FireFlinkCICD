@@ -10,7 +10,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env:
+      FIREFLINK_TOKEN: ${{ secrets.FIREFLINK_TOKEN }}
     steps:
     - uses: actions/checkout@v4
 
